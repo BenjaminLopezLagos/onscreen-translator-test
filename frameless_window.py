@@ -6,7 +6,7 @@ from PyQt6 import QtWidgets
 from PIL import Image
 from PIL.ImageQt import ImageQt
 
-class FramelessWindow(QMainWindow):  
+class FramelessWindow(QWidget):  
     def __init__(self, is_frameless, top_pos, left_pos, width, height, parent=None):
         super().__init__(parent=parent)
         self.move(left_pos, top_pos)

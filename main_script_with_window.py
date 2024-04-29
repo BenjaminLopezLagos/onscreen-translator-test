@@ -14,9 +14,9 @@ import re
 
 picture_read = easyocr.Reader(['en', 'ja'], gpu=True)
 
-def get_window_capture(path: str):
+def get_window_capture(window_title: str):
     # window list
-    window = pygetwindow.getWindowsWithTitle(path)[0]
+    window = pygetwindow.getWindowsWithTitle(window_title)[0]
     #screenshot and cropping
     left, top = window.topleft
     right, bottom = window.bottomright
@@ -31,7 +31,7 @@ def get_window_capture(path: str):
     return np.array(im)
 
 
-def make_img_transparent(img):
+def make_img_transparent(img: ndarray):
     PIL_image = Image.fromarray(img.astype('uint8')).convert('RGBA')
     datas = PIL_image.getdata()
 
@@ -44,11 +44,11 @@ def make_img_transparent(img):
 
     PIL_image.putdata(newData)
 
-    PIL_image.save("screenshot_transparent.png", "PNG")
+    #PIL_image.save("screenshot_transparent.png", "PNG")
     return PIL_image
 
 
-def scan_text(img: ndarray):
+def get_results_from_capture(img: ndarray):
     picture_results = picture_read.readtext(img, batch_size=2, paragraph=True)
 
     spacer = 100
@@ -75,8 +75,9 @@ def scan_text(img: ndarray):
                 text_idx += 1
         except:
             print('Skipped')
-
-    return { 'img': img, 'texts': detected_texts }
+    
+    overlay_img = make_img_transparent(img)
+    return { 'img': overlay_img, 'texts': detected_texts }
 
 
 
@@ -85,13 +86,12 @@ if __name__ == "__main__":
     window_title = 'Captura'
     window = pygetwindow.getWindowsWithTitle(window_title)[0]
     left, top = window.topleft
-    game_frame = get_window_capture(path=window_title)
-    scan_results = scan_text(game_frame)
-    processed_frame = make_img_transparent(scan_results['img'])
+    game_frame = get_window_capture(window_title=window_title)
+    scan_results = get_results_from_capture(game_frame)
     print(scan_results['texts'])
 
     window2 = FramelessWindow(is_frameless=True, top_pos=top, left_pos=left, width=window.width, height=window.height)
-    window2.load_image(processed_frame)
+    window2.load_image(scan_results['img'])
     window2.show()
 
     sys.exit(app.exec())
