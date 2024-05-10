@@ -1,10 +1,7 @@
 from frameless_window import FramelessWindow
 from PyQt6.QtWidgets import QApplication
 import sys
-import pygetwindow
-import pyautogui
 from main_window import MainWindow
-import ocr_translation_functions
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
