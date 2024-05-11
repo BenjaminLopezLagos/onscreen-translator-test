@@ -17,13 +17,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui = Ui_Dialog()
         self.ui.setupUi(self)  
         self.ui.windowComboBox.addItems(pygetwindow.getAllTitles())
+        
         self.overlay = FramelessWindow()
-
         self.worker = OCRTranslationWorker()
         self.worker_thread = QThread()
 
-        self.ui.translateButton.pressed.connect(self.start)
+        self.ui.translateButton.pressed.connect(self.start_window_translation)
         self.worker.translation_completed.connect(self.complete)
+        self.worker.hide_overlay.connect(self.change_overlay_visibility)
         self.translation_request.connect(self.worker.translate_window)
         self.worker.moveToThread(self.worker_thread)
         self.worker_thread.start()
@@ -40,11 +41,15 @@ class MainWindow(QtWidgets.QMainWindow):
         print(scan_results['texts'])
     """
     
-    def start(self):
-        self.overlay.hide()
+    def start_window_translation(self):
         window_title = self.ui.windowComboBox.currentText()
         self.translation_request.emit(window_title)
-        self.overlay.show()
+
+    def change_overlay_visibility(self, command):
+        if command is True:
+            self.overlay.hide()
+        else:
+            self.overlay.show()
 
     def complete(self, results):
         window_title = self.ui.windowComboBox.currentText()
@@ -58,11 +63,13 @@ class MainWindow(QtWidgets.QMainWindow):
 
 class OCRTranslationWorker(QObject):
     translation_completed = Signal(dict)
-
+    hide_overlay = Signal(bool)
     @Slot(str)
     def translate_window(self, window_title: str):
         while True:
+            self.hide_overlay.emit(True)
             game_frame = ocr_translation_functions.get_window_capture(window_title=window_title)
+            self.hide_overlay.emit(False)
             scan_results = ocr_translation_functions.get_results_from_capture(game_frame)
             self.translation_completed.emit(scan_results)
 
