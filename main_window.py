@@ -10,7 +10,7 @@ from numpy import ndarray
 
 
 class MainWindow(QtWidgets.QMainWindow):
-    translation_request = Signal(ndarray)
+    translation_request = Signal(str)
 
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -43,8 +43,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def start(self):
         self.overlay.hide()
         window_title = self.ui.windowComboBox.currentText()
-        game_frame = ocr_translation_functions.get_window_capture(window_title=window_title)
-        self.translation_request.emit(game_frame)
+        self.translation_request.emit(window_title)
         self.overlay.show()
 
     def complete(self, results):
@@ -60,8 +59,10 @@ class MainWindow(QtWidgets.QMainWindow):
 class OCRTranslationWorker(QObject):
     translation_completed = Signal(dict)
 
-    @Slot(ndarray)
-    def translate_window(self, window_capture: ndarray):
-        scan_results = ocr_translation_functions.get_results_from_capture(window_capture)
-        self.translation_completed.emit(scan_results)
+    @Slot(str)
+    def translate_window(self, window_title: str):
+        while True:
+            game_frame = ocr_translation_functions.get_window_capture(window_title=window_title)
+            scan_results = ocr_translation_functions.get_results_from_capture(game_frame)
+            self.translation_completed.emit(scan_results)
 

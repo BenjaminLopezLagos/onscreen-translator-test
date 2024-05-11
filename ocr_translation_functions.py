@@ -22,7 +22,7 @@ def get_window_capture(window_title: str):
     im = im.crop((left, top, right, bottom))
     
     # just checking but it's not necessary
-    im.save('screenshot.png', 'PNG')
+    #im.save('screenshot.png', 'PNG')
 
     # return screenshot as a numpy array
     return np.array(im)
