@@ -58,7 +58,7 @@ def get_results_from_capture(img: ndarray):
         top_left_corner = [int(value) for value in detection[0][0]]
         bottom_right_corner = [int(value) for value in detection[0][2]]
         text = detection[1]
-        print(text)
+        #print(text)
         if bool(re.match('[a-z0-9]+$', text, re.IGNORECASE)) is True: continue
         try:
             if detect(text) == 'ja':
@@ -71,7 +71,7 @@ def get_results_from_capture(img: ndarray):
                 spacer += 15
                 text_idx += 1
         except:
-            print('Skipped')
+            print('Line Skipped')
     
     overlay_img = make_img_transparent(img)
     return { 'img': overlay_img, 'texts': detected_texts }

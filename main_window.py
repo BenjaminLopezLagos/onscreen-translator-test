@@ -7,7 +7,8 @@ import pyautogui
 import ocr_translation_functions
 from PyQt6.QtCore import QThread, QObject, pyqtSignal as Signal, pyqtSlot as Slot
 from numpy import ndarray
-
+import time
+import os
 
 class MainWindow(QtWidgets.QMainWindow):
     translation_request = Signal(str)
@@ -21,6 +22,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.overlay = FramelessWindow()
         self.worker = OCRTranslationWorker()
         self.worker_thread = QThread()
+
+        self.translation_running = False
 
         self.ui.translateButton.pressed.connect(self.start_window_translation)
         self.worker.translation_completed.connect(self.complete)
@@ -45,6 +48,13 @@ class MainWindow(QtWidgets.QMainWindow):
         window_title = self.ui.windowComboBox.currentText()
         self.translation_request.emit(window_title)
 
+        if self.translation_running is True:
+            self.translation_running = False
+            self.worker.stop()
+        else:
+            self.translation_running = True
+            self.worker.resume()
+
     def change_overlay_visibility(self, command):
         if command is True:
             self.overlay.hide()
@@ -57,6 +67,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.overlay = FramelessWindow(is_frameless=True, top_pos=window.top, left_pos=window.left, width=window.width, height=window.height)
         self.overlay.load_image(results['img'])
         self.overlay.show()
+
+        os.system('cls')
         print(results['texts'])
 
 
@@ -64,6 +76,8 @@ class MainWindow(QtWidgets.QMainWindow):
 class OCRTranslationWorker(QObject):
     translation_completed = Signal(dict)
     hide_overlay = Signal(bool)
+    is_paused = True
+
     @Slot(str)
     def translate_window(self, window_title: str):
         while True:
@@ -72,4 +86,13 @@ class OCRTranslationWorker(QObject):
             self.hide_overlay.emit(False)
             scan_results = ocr_translation_functions.get_results_from_capture(game_frame)
             self.translation_completed.emit(scan_results)
+
+            while self.is_paused is True:
+                time.sleep(1)
+
+    def stop(self):
+        self.is_paused = True
+
+    def resume(self):
+        self.is_paused = False
 
