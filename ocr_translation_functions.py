@@ -46,7 +46,7 @@ def make_img_transparent(img: ndarray):
 
 
 def get_results_from_capture(img: ndarray):
-    picture_results = picture_read.readtext(img, batch_size=2, paragraph=True)
+    picture_results = picture_read.readtext(img, batch_size=2, paragraph=True, y_ths=0.01)
 
     spacer = 100
     print(img.shape)
