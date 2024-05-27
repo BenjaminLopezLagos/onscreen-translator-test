@@ -1,4 +1,4 @@
-# Form implementation generated from reading ui file '.\main_window.ui'
+# Form implementation generated from reading ui file '.\main_window_2.ui'
 #
 # Created by: PyQt6 UI code generator 6.4.2
 #
@@ -12,13 +12,17 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
-        Dialog.resize(400, 300)
+        Dialog.resize(491, 552)
         self.windowComboBox = QtWidgets.QComboBox(parent=Dialog)
         self.windowComboBox.setGeometry(QtCore.QRect(20, 50, 361, 22))
         self.windowComboBox.setObjectName("windowComboBox")
         self.translateButton = QtWidgets.QPushButton(parent=Dialog)
-        self.translateButton.setGeometry(QtCore.QRect(310, 260, 75, 24))
+        self.translateButton.setGeometry(QtCore.QRect(400, 50, 75, 24))
         self.translateButton.setObjectName("translateButton")
+        self.translatedTextsEdit = QtWidgets.QPlainTextEdit(parent=Dialog)
+        self.translatedTextsEdit.setGeometry(QtCore.QRect(20, 110, 451, 421))
+        self.translatedTextsEdit.setReadOnly(True)
+        self.translatedTextsEdit.setObjectName("translatedTextsEdit")
 
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
@@ -26,4 +30,4 @@ class Ui_Dialog(object):
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
         Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
-        self.translateButton.setText(_translate("Dialog", "PushButton"))
+        self.translateButton.setText(_translate("Dialog", "Run"))

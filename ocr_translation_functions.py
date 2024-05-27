@@ -63,7 +63,7 @@ def get_results_from_capture(img: ndarray):
         try:
             if detect(text) == 'ja':
                 translated = GoogleTranslator(source='ja', target='en').translate(text)
-                detected_texts.append((text_idx, translated))
+                detected_texts.append((text_idx, re.sub(r'[^a-zA-Z0-9,.;¿? ]+', '', translated)))
                 img = cv2.rectangle(img, top_left_corner,
                                     bottom_right_corner, (0, 255, 0, 255))
                 img = cv2.putText(img, str(text_idx), top_left_corner,

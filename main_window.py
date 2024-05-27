@@ -68,9 +68,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.overlay = FramelessWindow(is_frameless=True, top_pos=window.top, left_pos=window.left, width=window.width, height=window.height)
         self.overlay.load_image(results['img'])
         self.overlay.show()
-
+        
         os.system('cls')
         print(results['texts'])
+
+        self.ui.translatedTextsEdit.setPlainText('\n'.join('{}) {}'.format(x[0], x[1]) for x in results['texts']).encode("utf-8").decode('cp1252'))
 
 
 class OCRTranslationWorker(QObject):
