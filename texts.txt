@@ -1,0 +1,5 @@
+1) Figure 4
+2) Do you take "herb (yellow)"?
+3) no
+4) yes
+5) 275% days

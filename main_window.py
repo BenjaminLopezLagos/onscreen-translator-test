@@ -4,6 +4,7 @@ import sys
 from PyQt6 import QtWidgets, uic
 import pygetwindow
 import pyautogui
+from PIL import Image
 import ocr_translation_functions
 from PyQt6.QtCore import QThread, QObject, pyqtSignal as Signal, pyqtSlot as Slot
 from numpy import ndarray
@@ -27,7 +28,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.ui.translateButton.pressed.connect(self.start_window_translation)
         self.worker.translation_completed.connect(self.complete)
-        self.worker.hide_overlay.connect(self.change_overlay_visibility)
+        self.worker.hide_overlay_signal.connect(self.change_overlay_visibility)
         self.translation_request.connect(self.worker.translate_window)
         self.worker.moveToThread(self.worker_thread)
         self.worker_thread.start()
@@ -72,22 +73,33 @@ class MainWindow(QtWidgets.QMainWindow):
         print(results['texts'])
 
 
-
 class OCRTranslationWorker(QObject):
     translation_completed = Signal(dict)
-    hide_overlay = Signal(bool)
+    hide_overlay_signal = Signal(bool)
+    translation_data = Signal(dict)
     is_paused = True
 
     @Slot(str)
     def translate_window(self, window_title: str):
         while True:
-            self.hide_overlay.emit(True)
+            hide_overlay = True
+            self.hide_overlay_signal.emit(hide_overlay)
             game_frame = ocr_translation_functions.get_window_capture(window_title=window_title)
-            self.hide_overlay.emit(False)
+            hide_overlay = False
+            self.hide_overlay_signal.emit(hide_overlay)
             scan_results = ocr_translation_functions.get_results_from_capture(game_frame)
             self.translation_completed.emit(scan_results)
 
+            if hide_overlay is False:
+                print('saving img w/ boxes...')
+                img_w_bouding_box = ocr_translation_functions.get_window_capture(window_title=window_title)
+                Image.fromarray(img_w_bouding_box).save('output.png')
+                with open(f'texts.txt', 'w') as fp:
+                    fp.write('\n'.join('{}) {}'.format(x[0], x[1]) for x in scan_results['texts']))
+
             while self.is_paused is True:
+                hide_overlay = True
+                self.hide_overlay_signal.emit(hide_overlay)  
                 time.sleep(1)
 
     def stop(self):
