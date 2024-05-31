@@ -30,7 +30,7 @@ img = np.array(im)
 
 print("start")
 # raw text detection on image
-picture_results = picture_read.readtext(img, batch_size=2, paragraph=True)
+picture_results = picture_read.readtext(img, batch_size=16, paragraph=True, y_ths=0.045)
 
 spacer = 100
 print(img.shape)

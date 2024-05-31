@@ -102,7 +102,7 @@ class OCRTranslationWorker(QObject):
             while self.is_paused is True:
                 hide_overlay = True
                 self.hide_overlay_signal.emit(hide_overlay)  
-                time.sleep(1)
+                time.sleep(0.3)
 
     def stop(self):
         self.is_paused = True
