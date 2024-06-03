@@ -10,6 +10,7 @@ from PyQt6.QtCore import QThread, QObject, pyqtSignal as Signal, pyqtSlot as Slo
 from numpy import ndarray
 import time
 import os
+import cv2
 
 class MainWindow(QtWidgets.QMainWindow):
     translation_request = Signal(str)
@@ -66,7 +67,7 @@ class MainWindow(QtWidgets.QMainWindow):
         window_title = self.ui.windowComboBox.currentText()
         window = pygetwindow.getWindowsWithTitle(window_title)[0]
         self.overlay = FramelessWindow(is_frameless=True, top_pos=window.top, left_pos=window.left, width=window.width, height=window.height)
-        self.overlay.load_image(results['img'])
+        self.overlay.load_image(results['img'].resize((window.width, window.height), 2))
         self.overlay.show()
         
         os.system('cls')
@@ -83,6 +84,7 @@ class OCRTranslationWorker(QObject):
 
     @Slot(str)
     def translate_window(self, window_title: str):
+        i = 0
         while True:
             hide_overlay = True
             self.hide_overlay_signal.emit(hide_overlay)
@@ -95,14 +97,18 @@ class OCRTranslationWorker(QObject):
             if hide_overlay is False:
                 print('saving img w/ boxes...')
                 img_w_bouding_box = ocr_translation_functions.get_window_capture(window_title=window_title)
-                Image.fromarray(img_w_bouding_box).save('output.png')
-                with open(f'texts.txt', 'w') as fp:
+                Image.fromarray(img_w_bouding_box).save(f'./history/output_{i}.png')
+                with open(f'./history/texts_{i}.txt', 'w') as fp:
                     fp.write('\n'.join('{}) {}'.format(x[0], x[1]) for x in scan_results['texts']))
 
             while self.is_paused is True:
                 hide_overlay = True
                 self.hide_overlay_signal.emit(hide_overlay)  
                 time.sleep(0.3)
+
+            i += 1
+            if i > 10:
+                i = 0
 
     def stop(self):
         self.is_paused = True

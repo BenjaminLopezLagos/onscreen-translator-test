@@ -46,7 +46,23 @@ def make_img_transparent(img: ndarray):
 
 
 def get_results_from_capture(img: ndarray):
-    picture_results = picture_read.readtext(img, batch_size=8, paragraph=True, y_ths=0.1)
+    img = cv2.resize(img, None, fx=1.5, fy=1.5, interpolation=cv2.INTER_LINEAR)
+
+    #processed_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    
+    """    # Noise removal using Gaussian Blur
+        processed_img = cv2.GaussianBlur(img, (7, 7), sigmaX=2)
+
+        
+        # Define a sharpening kernel
+        sharpening_kernel = np.array([[0, -1, 0],
+                                    [-1,  5, -1],
+                                    [0, -1, 0]])
+        
+        # Apply the sharpening kernel to the blurred image
+        processed_img = cv2.filter2D(processed_img, -1, sharpening_kernel)
+    """
+    picture_results = picture_read.readtext(img, batch_size=16, paragraph=True, y_ths=0.045)
 
     spacer = 100
     print(img.shape)
@@ -54,6 +70,8 @@ def get_results_from_capture(img: ndarray):
 
     detected_texts = []
     text_idx = 1
+
+    translator = GoogleTranslator(source='ja', target='en')
     for detection in picture_results:
         top_left_corner = [int(value) for value in detection[0][0]]
         bottom_right_corner = [int(value) for value in detection[0][2]]
@@ -62,12 +80,12 @@ def get_results_from_capture(img: ndarray):
         if bool(re.match('[a-z0-9]+$', text, re.IGNORECASE)) is True: continue
         try:
             if detect(text) == 'ja':
-                translated = GoogleTranslator(source='ja', target='en').translate(text)
+                translated = translator.translate(text)
                 detected_texts.append((text_idx, re.sub(r'[^a-zA-Z0-9,.;¿? ]+', '', translated)))
                 img = cv2.rectangle(img, top_left_corner,
-                                    bottom_right_corner, (0, 255, 0, 255))
+                                    bottom_right_corner, (0, 255, 0, 255), thickness=2)
                 img = cv2.putText(img, str(text_idx), top_left_corner,
-                                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2, cv2.LINE_AA)
+                                cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 255, 0), 4, cv2.LINE_AA)
                 spacer += 15
                 text_idx += 1
         except:
