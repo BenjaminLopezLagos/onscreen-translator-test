@@ -14,15 +14,18 @@ class Ui_Dialog(object):
         Dialog.setObjectName("Dialog")
         Dialog.resize(491, 552)
         self.windowComboBox = QtWidgets.QComboBox(parent=Dialog)
-        self.windowComboBox.setGeometry(QtCore.QRect(20, 50, 361, 22))
+        self.windowComboBox.setGeometry(QtCore.QRect(20, 50, 451, 22))
         self.windowComboBox.setObjectName("windowComboBox")
         self.translateButton = QtWidgets.QPushButton(parent=Dialog)
-        self.translateButton.setGeometry(QtCore.QRect(400, 50, 75, 24))
+        self.translateButton.setGeometry(QtCore.QRect(390, 520, 75, 24))
         self.translateButton.setObjectName("translateButton")
         self.translatedTextsEdit = QtWidgets.QPlainTextEdit(parent=Dialog)
-        self.translatedTextsEdit.setGeometry(QtCore.QRect(20, 110, 451, 421))
+        self.translatedTextsEdit.setGeometry(QtCore.QRect(20, 90, 451, 421))
         self.translatedTextsEdit.setReadOnly(True)
         self.translatedTextsEdit.setObjectName("translatedTextsEdit")
+        self.historyButton = QtWidgets.QPushButton(parent=Dialog)
+        self.historyButton.setGeometry(QtCore.QRect(30, 520, 75, 24))
+        self.historyButton.setObjectName("historyButton")
 
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
@@ -30,4 +33,5 @@ class Ui_Dialog(object):
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
         Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
-        self.translateButton.setText(_translate("Dialog", "Run"))
+        self.translateButton.setText(_translate("Dialog", "RUN"))
+        self.historyButton.setText(_translate("Dialog", "HISTORY"))

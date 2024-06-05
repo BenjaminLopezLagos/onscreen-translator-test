@@ -1,5 +1,6 @@
 from UI_main_window import Ui_Dialog
 from frameless_window import FramelessWindow
+from history import History
 import sys
 from PyQt6 import QtWidgets, uic
 import pygetwindow
@@ -22,11 +23,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.windowComboBox.addItems(pygetwindow.getAllTitles())
         
         self.overlay = FramelessWindow()
+        self.history = History()
         self.worker = OCRTranslationWorker()
         self.worker_thread = QThread()
 
         self.translation_running = False
 
+        self.ui.historyButton.pressed.connect(self.go_to_history)
         self.ui.translateButton.pressed.connect(self.start_window_translation)
         self.worker.translation_completed.connect(self.complete)
         self.worker.hide_overlay_signal.connect(self.change_overlay_visibility)
@@ -49,12 +52,15 @@ class MainWindow(QtWidgets.QMainWindow):
     def start_window_translation(self):
         window_title = self.ui.windowComboBox.currentText()
         self.translation_request.emit(window_title)
+        self.ui.historyButton.setEnabled(True)
 
         if self.translation_running is True:
             self.translation_running = False
+            self.ui.historyButton.setEnabled(True)
             self.worker.stop()
         else:
             self.translation_running = True
+            self.ui.historyButton.setEnabled(False)
             self.worker.resume()
 
     def change_overlay_visibility(self, command):
@@ -75,6 +81,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.ui.translatedTextsEdit.setPlainText('\n'.join('{}) {}'.format(x[0], x[1]) for x in results['texts']).encode("utf-8").decode('cp1252'))
 
+    def go_to_history(self):
+        self.history.exec()
 
 class OCRTranslationWorker(QObject):
     translation_completed = Signal(dict)
@@ -107,7 +115,7 @@ class OCRTranslationWorker(QObject):
                 time.sleep(0.3)
 
             i += 1
-            if i > 10:
+            if i > 9:
                 i = 0
 
     def stop(self):

@@ -46,23 +46,23 @@ def make_img_transparent(img: ndarray):
 
 
 def get_results_from_capture(img: ndarray):
-    img = cv2.resize(img, None, fx=1.5, fy=1.5, interpolation=cv2.INTER_LINEAR)
+    img = cv2.resize(img, None, fx=1.15, fy=1.15, interpolation=cv2.INTER_LINEAR)
 
     #processed_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     
     """    # Noise removal using Gaussian Blur
         processed_img = cv2.GaussianBlur(img, (7, 7), sigmaX=2)
-
+    """
         
         # Define a sharpening kernel
-        sharpening_kernel = np.array([[0, -1, 0],
-                                    [-1,  5, -1],
-                                    [0, -1, 0]])
+    sharpening_kernel = np.array([[0, -1, 0],
+                                [-1,  5, -1],
+                                [0, -1, 0]])
         
-        # Apply the sharpening kernel to the blurred image
-        processed_img = cv2.filter2D(processed_img, -1, sharpening_kernel)
-    """
-    picture_results = picture_read.readtext(img, batch_size=16, paragraph=True, y_ths=0.045)
+    # Apply the sharpening kernel to the blurred image
+    img = cv2.filter2D(img, -1, sharpening_kernel)
+    
+    picture_results = picture_read.readtext(img, low_text=0.3, batch_size=16, paragraph=True, y_ths=0.02)
 
     spacer = 100
     print(img.shape)
@@ -76,8 +76,8 @@ def get_results_from_capture(img: ndarray):
         top_left_corner = [int(value) for value in detection[0][0]]
         bottom_right_corner = [int(value) for value in detection[0][2]]
         text = detection[1]
-        #print(text)
-        if bool(re.match('[a-z0-9]+$', text, re.IGNORECASE)) is True: continue
+        print(text)
+        #if bool(re.match('[a-z0-9]+$', text, re.IGNORECASE)) is True: continue
         try:
             if detect(text) == 'ja':
                 translated = translator.translate(text)

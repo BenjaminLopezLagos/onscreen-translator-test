@@ -18,7 +18,7 @@
     <rect>
      <x>20</x>
      <y>50</y>
-     <width>361</width>
+     <width>451</width>
      <height>22</height>
     </rect>
    </property>
@@ -26,27 +26,40 @@
   <widget class="QPushButton" name="translateButton">
    <property name="geometry">
     <rect>
-     <x>400</x>
-     <y>50</y>
+     <x>390</x>
+     <y>520</y>
      <width>75</width>
      <height>24</height>
     </rect>
    </property>
    <property name="text">
-    <string>PushButton</string>
+    <string>RUN</string>
    </property>
   </widget>
   <widget class="QPlainTextEdit" name="translatedTextsEdit">
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>110</y>
+     <y>90</y>
      <width>451</width>
      <height>421</height>
     </rect>
    </property>
    <property name="readOnly">
     <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="historyButton">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>520</y>
+     <width>75</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>HISTORY</string>
    </property>
   </widget>
  </widget>
