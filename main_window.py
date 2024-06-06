@@ -19,8 +19,9 @@ class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
         self.ui = Ui_Dialog()
-        self.ui.setupUi(self)  
-        self.ui.windowComboBox.addItems(pygetwindow.getAllTitles())
+        self.ui.setupUi(self)
+        self.refresh_window_list()
+        self.ui.windowComboBox.setCurrentIndex(0)
         
         self.overlay = FramelessWindow()
         self.history = History()
@@ -29,6 +30,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.translation_running = False
 
+        self.ui.updateWindowsButton.pressed.connect(self.refresh_window_list)
         self.ui.historyButton.pressed.connect(self.go_to_history)
         self.ui.translateButton.pressed.connect(self.start_window_translation)
         self.worker.translation_completed.connect(self.complete)
@@ -57,10 +59,12 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.translation_running is True:
             self.translation_running = False
             self.ui.historyButton.setEnabled(True)
+            self.ui.windowComboBox.setEnabled(True)
             self.worker.stop()
         else:
             self.translation_running = True
             self.ui.historyButton.setEnabled(False)
+            self.ui.windowComboBox.setEnabled(False)
             self.worker.resume()
 
     def change_overlay_visibility(self, command):
@@ -83,6 +87,13 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def go_to_history(self):
         self.history.exec()
+
+    def refresh_window_list(self):
+        window_list = pygetwindow.getAllTitles()
+        window_list = list(filter(None, window_list))
+        print(window_list)
+        self.ui.windowComboBox.clear()
+        self.ui.windowComboBox.addItems(window_list)
 
 class OCRTranslationWorker(QObject):
     translation_completed = Signal(dict)
