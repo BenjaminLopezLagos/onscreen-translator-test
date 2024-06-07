@@ -12,7 +12,7 @@ class History(QtWidgets.QDialog):
         self.ui.nextImgBtn.pressed.connect(self.go_to_next)
         self.ui.previousImgBtn.pressed.connect(self.go_to_previous)
 
-        self.ui.idxViewerLabel.setText(f'{self.current_position} / {self.limit}')
+        self.ui.idxViewerLabel.setText(f'{self.current_position+1} / {self.limit}')
 
         #add no file/incorrect initial file exception
         self.current_files = {'img': f'{self.history_dir}/output_{self.current_position}.png',
@@ -34,7 +34,7 @@ class History(QtWidgets.QDialog):
         if self.current_position < 0:
             self.current_position = 0
 
-        self.ui.idxViewerLabel.setText(f'{self.current_position} / {self.limit}')
+        self.ui.idxViewerLabel.setText(f'{self.current_position+1} / {self.limit}')
 
         self.current_files = {'img': f'{self.history_dir}/output_{self.current_position}.png',
                               'text': f'{self.history_dir}/texts_{self.current_position}.txt'}
@@ -46,10 +46,10 @@ class History(QtWidgets.QDialog):
 
     def go_to_next(self):
         self.current_position += 1
-        if self.current_position > self.limit:
-            self.current_position = self.limit #limit
+        if self.current_position > self.limit - 1:
+            self.current_position = self.limit - 1 # stay on limit
         
-        self.ui.idxViewerLabel.setText(f'{self.current_position} / {self.limit}')
+        self.ui.idxViewerLabel.setText(f'{self.current_position+1} / {self.limit}')
 
         self.current_files = {'img': f'{self.history_dir}/output_{self.current_position}.png',
                               'text': f'{self.history_dir}/texts_{self.current_position}.txt'}
