@@ -116,9 +116,10 @@ class OCRTranslationWorker(QObject):
             if hide_overlay is False:
                 print('saving img w/ boxes...')
                 img_w_bouding_box = ocr_translation_functions.get_window_capture(window_title=window_title)
-                Image.fromarray(img_w_bouding_box).save(f'./history/output_{i}.png')
-                with open(f'./history/texts_{i}.txt', 'w') as fp:
-                    fp.write('\n'.join('{}) {}'.format(x[0], x[1]) for x in scan_results['texts']))
+                if scan_results['texts']:
+                    Image.fromarray(img_w_bouding_box).save(f'./history/output_{i}.png')
+                    with open(f'./history/texts_{i}.txt', 'w') as fp:
+                        fp.write('\n'.join('{}) {}'.format(x[0], x[1]) for x in scan_results['texts']))
 
             while self.is_paused is True:
                 hide_overlay = True
