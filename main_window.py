@@ -63,6 +63,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.worker.stop()
         else:
             self.translation_running = True
+            self.translation_request.emit(window_title)
             self.ui.historyButton.setEnabled(False)
             self.ui.windowComboBox.setEnabled(False)
             self.worker.resume()
@@ -74,8 +75,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.overlay.show()
 
     def complete(self, results):
-        window_title = self.ui.windowComboBox.currentText()
-        window = pygetwindow.getWindowsWithTitle(window_title)[0]
+        window = results['window']
         self.overlay = FramelessWindow(is_frameless=True, top_pos=window.top, left_pos=window.left, width=window.width, height=window.height)
         self.overlay.load_image(results['img'].resize((window.width, window.height), 2))
         self.overlay.show()
@@ -86,6 +86,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.translatedTextsEdit.setPlainText('\n'.join('{}) {}'.format(x[0], x[1]) for x in results['texts']).encode("utf-8").decode('cp1252'))
 
     def go_to_history(self):
+        self.history = History()
         self.history.exec()
 
     def refresh_window_list(self):
@@ -111,6 +112,7 @@ class OCRTranslationWorker(QObject):
             hide_overlay = False
             self.hide_overlay_signal.emit(hide_overlay)
             scan_results = ocr_translation_functions.get_results_from_capture(game_frame)
+            scan_results['window'] = pygetwindow.getWindowsWithTitle(window_title)[0]
             self.translation_completed.emit(scan_results)
 
             if hide_overlay is False:
@@ -120,7 +122,7 @@ class OCRTranslationWorker(QObject):
                     Image.fromarray(img_w_bouding_box).save(f'./history/output_{i}.png')
                     with open(f'./history/texts_{i}.txt', 'w') as fp:
                         fp.write('\n'.join('{}) {}'.format(x[0], x[1]) for x in scan_results['texts']))
-
+            
             while self.is_paused is True:
                 hide_overlay = True
                 self.hide_overlay_signal.emit(hide_overlay)  
