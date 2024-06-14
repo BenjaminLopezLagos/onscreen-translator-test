@@ -114,6 +114,7 @@ class OCRTranslationWorker(QObject):
     def translate_window(self, window_title: str):
         i = 0
         self.current_window = window_title
+        previous_results = {'img': '', 'texts': 'empty'}
         while True:
             hide_overlay = True
             self.hide_overlay_signal.emit(hide_overlay)
@@ -128,22 +129,24 @@ class OCRTranslationWorker(QObject):
                 if hide_overlay is False:
                     print('saving img w/ boxes...')
                     img_w_bouding_box = ocr_translation_functions.get_window_capture(window_title=self.current_window)
-                    if scan_results['texts']:
+                    if scan_results['texts'] and (scan_results['texts'] != previous_results['texts']):
                         Image.fromarray(img_w_bouding_box).save(f'./history/output_{i}.png')
                         with open(f'./history/texts_{i}.txt', 'w') as fp:
                             fp.write('\n'.join('{}) {}'.format(x[0], x[1]) for x in scan_results['texts']))
+                            i += 1
+                            if i > 9:
+                                i = 0
+                
+                previous_results = scan_results
                 
                 while self.is_paused is True:
                     hide_overlay = True
                     self.hide_overlay_signal.emit(hide_overlay)  
                     time.sleep(0.3)
 
-                i += 1
-                if i > 9:
-                    i = 0
-            except:
-                error_message = "ERROR: The selected window no longer exists."
-                print(error_message)
+
+            except Exception as e:
+                print('ERROR. Window does not exist.')
                 time.sleep(1)
 
     def stop(self):
