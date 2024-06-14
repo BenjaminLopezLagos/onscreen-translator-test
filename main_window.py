@@ -94,6 +94,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def refresh_window_list(self):
         window_list = pygetwindow.getAllTitles()
         window_list = list(filter(None, window_list))
+        window_list = list(set(window_list))
         print(window_list)
         self.ui.windowComboBox.clear()
         self.ui.windowComboBox.addItems(window_list)
