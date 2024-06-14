@@ -7,7 +7,7 @@ from PIL import Image
 from PIL.ImageQt import ImageQt
 
 class FramelessWindow(QWidget):  
-    def __init__(self, is_frameless, top_pos, left_pos, width, height, parent=None):
+    def __init__(self, is_frameless=True, top_pos=0, left_pos=0, width=100, height=100, parent=None):
         super().__init__(parent=parent)
         self.move(left_pos, top_pos)
         self.setFixedSize(width, height)
@@ -15,7 +15,7 @@ class FramelessWindow(QWidget):
         self.setWindowFlag(Qt.WindowType.FramelessWindowHint, is_frameless)  # Set frameless flag
         self.setWindowFlag(Qt.WindowType.WindowTransparentForInput, is_frameless)  
         self.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, is_frameless)
-        self.setStyleSheet("border : 2px dashed blue;") 
+        self.setStyleSheet("border : 2px dashed red;") 
         self.setWindowTitle("PyQt Frameless Window")
 
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, is_frameless)
