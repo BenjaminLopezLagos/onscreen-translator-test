@@ -75,6 +75,19 @@
     <string>Refresh</string>
    </property>
   </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>30</y>
+     <width>91</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Choose window</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>

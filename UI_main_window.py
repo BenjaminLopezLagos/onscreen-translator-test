@@ -1,4 +1,4 @@
-# Form implementation generated from reading ui file '.\main_window_2.ui'
+# Form implementation generated from reading ui file 'main_window_2.ui'
 #
 # Created by: PyQt6 UI code generator 6.4.2
 #
@@ -29,6 +29,9 @@ class Ui_Dialog(object):
         self.updateWindowsButton = QtWidgets.QPushButton(parent=Dialog)
         self.updateWindowsButton.setGeometry(QtCore.QRect(400, 50, 75, 24))
         self.updateWindowsButton.setObjectName("updateWindowsButton")
+        self.label = QtWidgets.QLabel(parent=Dialog)
+        self.label.setGeometry(QtCore.QRect(20, 30, 91, 16))
+        self.label.setObjectName("label")
 
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
@@ -39,3 +42,4 @@ class Ui_Dialog(object):
         self.translateButton.setText(_translate("Dialog", "RUN"))
         self.historyButton.setText(_translate("Dialog", "HISTORY"))
         self.updateWindowsButton.setText(_translate("Dialog", "Refresh"))
+        self.label.setText(_translate("Dialog", "Choose window"))

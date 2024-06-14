@@ -30,6 +30,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.translation_running = False
 
+        self.ui.windowComboBox.currentIndexChanged.connect(self.update_worker_window_title)
         self.ui.updateWindowsButton.pressed.connect(self.refresh_window_list)
         self.ui.historyButton.pressed.connect(self.go_to_history)
         self.ui.translateButton.pressed.connect(self.start_window_translation)
@@ -38,34 +39,35 @@ class MainWindow(QtWidgets.QMainWindow):
         self.translation_request.connect(self.worker.translate_window)
         self.worker.moveToThread(self.worker_thread)
         self.worker_thread.start()
-    """
-    def start_translation_current_frame(self):
-        window_title = self.ui.windowComboBox.currentText()
-        window = pygetwindow.getWindowsWithTitle(window_title)[0]
-        left, top = window.topleft
-        game_frame = ocr_translation_functions.get_window_capture(window_title=window_title)
-        scan_results = ocr_translation_functions.get_results_from_capture(game_frame)
-        self.overlay = FramelessWindow(is_frameless=True, top_pos=top, left_pos=left, width=window.width, height=window.height)
-        self.overlay.load_image(scan_results['img'])
-        self.overlay.show()
-        print(scan_results['texts'])
-    """
-    
+
+    def closeEvent(self, event):
+        if self.translation_running is True:
+            QtWidgets.QMessageBox.warning(
+                self,
+                "Warning",
+                "The translation system is still running. Please stop it before exiting.",
+                QtWidgets.QMessageBox.StandardButton.Ok
+            )
+            event.ignore() 
+
     def start_window_translation(self):
         window_title = self.ui.windowComboBox.currentText()
         self.translation_request.emit(window_title)
         self.ui.historyButton.setEnabled(True)
+        self.ui.translateButton.setText('Pause')
 
         if self.translation_running is True:
             self.translation_running = False
             self.ui.historyButton.setEnabled(True)
             self.ui.windowComboBox.setEnabled(True)
+            self.ui.translateButton.setText('Resume')
             self.worker.stop()
         else:
             self.translation_running = True
             self.translation_request.emit(window_title)
             self.ui.historyButton.setEnabled(False)
             self.ui.windowComboBox.setEnabled(False)
+            self.ui.translateButton.setText('Pause')
             self.worker.resume()
 
     def change_overlay_visibility(self, command):
@@ -96,41 +98,52 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.windowComboBox.clear()
         self.ui.windowComboBox.addItems(window_list)
 
+    def update_worker_window_title(self):
+        window_title = self.ui.windowComboBox.currentText()
+        self.worker.set_window(window_title)
+
 class OCRTranslationWorker(QObject):
     translation_completed = Signal(dict)
     hide_overlay_signal = Signal(bool)
     translation_data = Signal(dict)
     is_paused = True
+    current_window = ''
 
     @Slot(str)
     def translate_window(self, window_title: str):
         i = 0
+        self.current_window = window_title
         while True:
             hide_overlay = True
             self.hide_overlay_signal.emit(hide_overlay)
-            game_frame = ocr_translation_functions.get_window_capture(window_title=window_title)
-            hide_overlay = False
-            self.hide_overlay_signal.emit(hide_overlay)
-            scan_results = ocr_translation_functions.get_results_from_capture(game_frame)
-            scan_results['window'] = pygetwindow.getWindowsWithTitle(window_title)[0]
-            self.translation_completed.emit(scan_results)
+            try:
+                game_frame = ocr_translation_functions.get_window_capture(window_title=self.current_window)
+                hide_overlay = False
+                self.hide_overlay_signal.emit(hide_overlay)
+                scan_results = ocr_translation_functions.get_results_from_capture(game_frame)
+                scan_results['window'] = pygetwindow.getWindowsWithTitle(self.current_window)[0]
+                self.translation_completed.emit(scan_results)
 
-            if hide_overlay is False:
-                print('saving img w/ boxes...')
-                img_w_bouding_box = ocr_translation_functions.get_window_capture(window_title=window_title)
-                if scan_results['texts']:
-                    Image.fromarray(img_w_bouding_box).save(f'./history/output_{i}.png')
-                    with open(f'./history/texts_{i}.txt', 'w') as fp:
-                        fp.write('\n'.join('{}) {}'.format(x[0], x[1]) for x in scan_results['texts']))
-            
-            while self.is_paused is True:
-                hide_overlay = True
-                self.hide_overlay_signal.emit(hide_overlay)  
-                time.sleep(0.3)
+                if hide_overlay is False:
+                    print('saving img w/ boxes...')
+                    img_w_bouding_box = ocr_translation_functions.get_window_capture(window_title=self.current_window)
+                    if scan_results['texts']:
+                        Image.fromarray(img_w_bouding_box).save(f'./history/output_{i}.png')
+                        with open(f'./history/texts_{i}.txt', 'w') as fp:
+                            fp.write('\n'.join('{}) {}'.format(x[0], x[1]) for x in scan_results['texts']))
+                
+                while self.is_paused is True:
+                    hide_overlay = True
+                    self.hide_overlay_signal.emit(hide_overlay)  
+                    time.sleep(0.3)
 
-            i += 1
-            if i > 9:
-                i = 0
+                i += 1
+                if i > 9:
+                    i = 0
+            except:
+                error_message = "ERROR: The selected window no longer exists."
+                print(error_message)
+                time.sleep(1)
 
     def stop(self):
         self.is_paused = True
@@ -138,3 +151,5 @@ class OCRTranslationWorker(QObject):
     def resume(self):
         self.is_paused = False
 
+    def set_window(self, new_window):
+        self.current_window = new_window
