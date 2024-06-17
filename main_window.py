@@ -53,12 +53,13 @@ class MainWindow(QtWidgets.QMainWindow):
     def start_window_translation(self):
         window_title = self.ui.windowComboBox.currentText()
         self.translation_request.emit(window_title)
-        self.ui.historyButton.setEnabled(True)
         self.ui.translateButton.setText('Pause')
+        self.ui.updateWindowsButton.setEnabled(False)
 
         if self.translation_running is True:
             self.translation_running = False
             self.ui.historyButton.setEnabled(True)
+            self.ui.updateWindowsButton.setEnabled(True)
             self.ui.windowComboBox.setEnabled(True)
             self.ui.translateButton.setText('Resume')
             self.worker.stop()
@@ -66,6 +67,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.translation_running = True
             self.translation_request.emit(window_title)
             self.ui.historyButton.setEnabled(False)
+            self.ui.updateWindowsButton.setEnabled(False)
             self.ui.windowComboBox.setEnabled(False)
             self.ui.translateButton.setText('Pause')
             self.worker.resume()
