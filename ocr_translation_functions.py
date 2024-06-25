@@ -93,10 +93,13 @@ def get_results_from_capture(img: ndarray):
         except:
             print('Line Skipped')
 
-    translated_texts = translator.translate_batch(detected_texts)
-    processed_texts = []
-    for i in range(0, len(detected_texts)):
-        processed_texts.append((text_idx_list[i], re.sub(r'[^a-zA-Z0-9,.;¿? ]+', '', translated_texts[i])))
+    translated_texts = [('-', '')]
+    processed_texts = [('-', '')]
+    if len(detected_texts) > 0:
+        translated_texts = translator.translate_batch(detected_texts)
+        processed_texts = []
+        for i in range(0, len(detected_texts)):
+            processed_texts.append((text_idx_list[i], re.sub(r'[^a-zA-Z0-9,.;¿? ]+', '', translated_texts[i])))
     
     print(translated_texts)
     print(processed_texts)

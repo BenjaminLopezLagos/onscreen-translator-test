@@ -43,8 +43,8 @@ class History(QtWidgets.QDialog):
                     self.images.append({'img': ImageQt(img),
                                         'text': fp.read()})
             except:
-                self.limit = i
-                break
+                self.limit = len(self.images)
+                continue
                     
 
     def go_to_previous(self):

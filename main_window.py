@@ -124,14 +124,14 @@ class OCRTranslationWorker(QObject):
                 game_frame = ocr_translation_functions.get_window_capture(window_title=self.current_window)
                 hide_overlay = False
                 self.hide_overlay_signal.emit(hide_overlay)
-                scan_results = ocr_translation_functions.get_results_from_capture(game_frame)
-                scan_results['window'] = pygetwindow.getWindowsWithTitle(self.current_window)[0]
-                self.translation_completed.emit(scan_results)
 
                 if hide_overlay is False:
-                    print('saving img w/ boxes...')
+                    scan_results = ocr_translation_functions.get_results_from_capture(game_frame)
+                    scan_results['window'] = pygetwindow.getWindowsWithTitle(self.current_window)[0]
+                    self.translation_completed.emit(scan_results)
                     img_w_bouding_box = ocr_translation_functions.get_window_capture(window_title=self.current_window)
-                    if scan_results['texts'] and (scan_results['texts'] != previous_results['texts']):
+                    if scan_results['texts'] and (scan_results['texts'] != previous_results['texts']) and (scan_results['texts'][0][0] != '-'):
+                        print('saving img w/ boxes...')
                         Image.fromarray(img_w_bouding_box).save(f'./history/output_{i}.png')
                         with open(f'./history/texts_{i}.txt', 'w') as fp:
                             fp.write('\n'.join('{}) {}'.format(x[0], x[1]) for x in scan_results['texts']))
@@ -144,12 +144,13 @@ class OCRTranslationWorker(QObject):
                 while self.is_paused is True:
                     hide_overlay = True
                     self.hide_overlay_signal.emit(hide_overlay)  
-                    time.sleep(0.3)
-
-
+                    time.sleep(1)
             except Exception as e:
-                print('ERROR. Window does not exist.')
-                time.sleep(1)
+                print('ERROR. Please pause and choose another window.')
+                print(e)
+                hide_overlay = True
+                self.hide_overlay_signal.emit(hide_overlay)  
+                break
 
     def stop(self):
         self.is_paused = True
